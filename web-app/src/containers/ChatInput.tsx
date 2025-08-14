@@ -100,11 +100,16 @@ const ChatInput = ({ model, className, initialMessage }: ChatInputProps) => {
       setMessage('Please select a model to start chatting.')
       return
     }
-    if (!prompt.trim()) {
+    if (!prompt.trim() && uploadedFiles.length === 0) {
       return
     }
     setMessage('')
-    sendMessage(prompt)
+    sendMessage(
+      prompt,
+      true,
+      uploadedFiles.length > 0 ? uploadedFiles : undefined
+    )
+    setUploadedFiles([])
   }
 
   useEffect(() => {
@@ -627,9 +632,13 @@ const ChatInput = ({ model, className, initialMessage }: ChatInputProps) => {
               </Button>
             ) : (
               <Button
-                variant={!prompt.trim() ? null : 'default'}
+                variant={
+                  !prompt.trim() && uploadedFiles.length === 0
+                    ? null
+                    : 'default'
+                }
                 size="icon"
-                disabled={!prompt.trim()}
+                disabled={!prompt.trim() && uploadedFiles.length === 0}
                 data-test-id="send-message-button"
                 onClick={() => handleSendMesage(prompt)}
               >
