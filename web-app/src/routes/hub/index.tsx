@@ -110,8 +110,8 @@ function Hub() {
         return (b.downloads || 0) - (a.downloads || 0)
       } else {
         return (
-          new Date(b.created_at || 0).getTime() -
-          new Date(a.created_at || 0).getTime()
+          new Date(b.createdAt || 0).getTime() -
+          new Date(a.createdAt || 0).getTime()
         )
       }
     })
@@ -133,7 +133,10 @@ function Hub() {
     if (debouncedSearchValue.length) {
       const fuse = new Fuse(filtered, searchOptions)
       // Remove domain from search value (e.g., "huggingface.co/author/model" -> "author/model")
-      const cleanedSearchValue = debouncedSearchValue.replace(/^https?:\/\/[^/]+\//, '')
+      const cleanedSearchValue = debouncedSearchValue.replace(
+        /^https?:\/\/[^/]+\//,
+        ''
+      )
       filtered = fuse.search(cleanedSearchValue).map((result) => result.item)
     }
     // Apply downloaded filter
