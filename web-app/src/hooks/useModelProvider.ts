@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 import { localStorageKey } from '@/constants/localStorage'
 import { sep } from '@tauri-apps/api/path'
 import { modelSettings } from '@/lib/predefined'
+import { isToolSupported } from '@/services/models'
 
 type ModelProviderState = {
   providers: ModelProvider[]
@@ -16,7 +17,7 @@ type ModelProviderState = {
   selectModelProvider: (
     providerName: string,
     modelName: string
-  ) => Model | undefined
+  ) => Promise<Model | undefined>
   addProvider: (provider: ModelProvider) => void
   deleteProvider: (providerName: string) => void
   deleteModel: (modelId: string) => void
@@ -154,7 +155,7 @@ export const useModelProvider = create<ModelProviderState>()(
 
         return provider
       },
-      selectModelProvider: (providerName: string, modelName: string) => {
+      selectModelProvider: async (providerName: string, modelName: string) => {
         // Find the model object
         const provider = get().providers.find(
           (provider) => provider.provider === providerName
@@ -164,6 +165,10 @@ export const useModelProvider = create<ModelProviderState>()(
 
         if (provider && provider.models) {
           modelObject = provider.models.find((model) => model.id === modelName)
+          if (modelObject) {
+            if (await isToolSupported(modelObject.id))
+              modelObject.capabilities = ['tools']
+          }
         }
 
         // Update state with provider name and model object
